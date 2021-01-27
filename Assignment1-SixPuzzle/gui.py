@@ -67,7 +67,7 @@ class GUI:
         elif self.algorithm.get() == ALGORITHMS[2]:
             self.run_dfs()
         else:
-            print("Not yet")
+            self.run_iterative_deepening()
 
     def run_bfs(self):
         self.notification.set("Running Breadth First Search")
@@ -92,6 +92,15 @@ class GUI:
         self.notification_extra.set(str(answer[1]) + " total states visited.\n" +
                                     str(len(answer[0])) + " states in solution path")
         self.notification.set("Loaded Uniform Cost Search states")
+
+    def run_iterative_deepening(self):
+        self.notification.set("Running Iterative Deepening Search")
+        answer = algorithms.iterative_deepening(START_STATE)
+        self.states = answer[0]
+        self.notification_extra.set(str(answer[1]) + " total states visited.\n" +
+                                    str(len(answer[0])) + " states in solution path\n" +
+                                    str(answer[2]) + " was depth level of the solution (counting 0 as root)")
+        self.notification.set("Loaded Iterative Deepening Search states")
 
 
 my_gui = GUI()
@@ -122,7 +131,7 @@ for al in (range(len(ALGORITHMS))):
 label_1.place(x=220, y=10)
 label_algorithm.place(x=300, y=10)
 label_notification.place(x=500, y=150)
-label_notification_extra.place(x=250, y=350)
+label_notification_extra.place(x=200, y=340)
 label_state_number.place(x=170, y=100)
 reset_button.place(x=1, y=1)
 run_button.place(x=700, y=1)
