@@ -1,38 +1,136 @@
 import state
-from queue import Queue
 
 
 def breadth_first_search(start):
+    """ Implementation for breadth first search.
+
+    :param start: Starting state matrix
+    :return: Will return a list, first element contains another list of all states visited along the solution path,
+    and the second element is an integer representing the number of total states visited (different than the number of
+    states in the solution path).
+    """
+
+    # queue will contain a list of elements to be searched. Each element is a list where the state configuration is
+    # at index 0. Index 1 will contain a list of other states representing the path to get to the state (one at index
+    # 0) from the start state.
+    queue = [[start, [start]]]
     states_visited = []
 
-    q = Queue(maxsize=20)
-    q.put(start)
-
     def inner_fn():
-        if not (q.empty()):
-            next_node = q.get()
+        next_node = queue.pop(0)
+        curr_state = next_node[0]
+        path_to_curr_state = next_node[1]
 
-            states_visited.append(next_node)
+        states_visited.append(curr_state)
 
-            if next_node == state.GOAL_STATE:
-                return
+        if curr_state == state.GOAL_STATE:
+            return [path_to_curr_state, len(states_visited)]
 
-            new_moves = state.find_next_moves(next_node)
+        new_moves = state.find_next_moves(curr_state)
 
-            for move in new_moves:
-                new_state = state.execute_move(next_node, int(move[0]))
-                if not (new_state in states_visited):
-                    q.put(new_state)
-            inner_fn()
-        else:
-            print("Nothing left in queue")
-            return
+        for move in new_moves:
+            next_state = state.execute_move(curr_state, int(move[0]))
+            if not(next_state in states_visited):
+                queue.append([next_state, path_to_curr_state + [next_state]])
+        return inner_fn()
 
-    inner_fn()
+    answer = inner_fn()
 
     print("---------------- Breadth First Search ------------------")
-    for s in states_visited:
+    for s in answer[0]:
         state.pretty_print(s)
     print("--------------------------------------------------------")
-    return states_visited
+    print(str(answer[1]) + " states visited")
+
+    return answer
+
+
+def depth_first_search(start):
+    """ Implementation for depth first search.
+
+    :param start: Starting state matrix
+    :return: Will return a list, first element contains another list of all states visited along the solution path,
+    and the second element is an integer representing the number of total states visited (different than the number of
+    states in the solution path).
+    """
+
+    # Only change is from queue to stack. So we now pop from back of list, instead of the front.
+    stack = [[start, [start]]]
+    states_visited = []
+
+    def inner_fn():
+        next_node = stack.pop()
+        curr_state = next_node[0]
+        path_to_curr_state = next_node[1]
+
+        states_visited.append(curr_state)
+
+        if curr_state == state.GOAL_STATE:
+            return [path_to_curr_state, len(states_visited)]
+
+        new_moves = state.find_next_moves(curr_state)
+        # new_moves must now be reversed because the algorithm takes from the back of list first instead of the front
+        new_moves.reverse()
+        for move in new_moves:
+            next_state = state.execute_move(curr_state, int(move[0]))
+            if not(next_state in states_visited):
+                stack.append([next_state, path_to_curr_state + [next_state]])
+        return inner_fn()
+
+    answer = inner_fn()
+
+    print("---------------- Depth First Search ------------------")
+    for s in answer[0]:
+        state.pretty_print(s)
+    print("--------------------------------------------------------")
+    print(str(answer[1]) + " states visited")
+
+    return answer
+
+
+def uniform_cost_search(start):
+    """ Implementation for depth first search.
+
+    :param start: Starting state matrix
+    :return: Will return a list, first element contains another list of all states visited along the solution path,
+    and the second element is an integer representing the number of total states visited (different than the number of
+    states in the solution path).
+    """
+
+    # must make this a priority queue based on the length of path. Since each step is same cost, we just need to
+    # keep track of the level (path length) of the state.
+    priority_queue = [[start, [start]]]
+    states_visited = []
+
+    def inner_fn():
+        next_node = priority_queue.pop(0)               # Take from front (priority)
+        curr_state = next_node[0]
+        path_to_curr_state = next_node[1]
+
+        states_visited.append(curr_state)
+
+        if curr_state == state.GOAL_STATE:
+            return [path_to_curr_state, len(states_visited)]
+
+        new_moves = state.find_next_moves(curr_state)
+
+        for move in new_moves:
+            # Since each move has an equal "cost" of 1, it does not matter which order
+            # we add them in the queue since they will all still be the same overall "cost"
+            next_state = state.execute_move(curr_state, int(move[0]))
+            if not(next_state in states_visited):
+                priority_queue.append([next_state, path_to_curr_state + [next_state]])
+        return inner_fn()
+
+    answer = inner_fn()
+
+    print("---------------- Uniform Cost Search ------------------")
+    for s in answer[0]:
+        state.pretty_print(s)
+    print("--------------------------------------------------------")
+    print(str(answer[1]) + " states visited")
+
+    return answer
+
+def iterative_deepening(start):
 
